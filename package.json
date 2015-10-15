@@ -1,0 +1,22 @@
+{
+  "name": "screendoor-api-node",
+  "version": "1.0.0",
+  "description": "NodeJS module for interacting with the Screendoor API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/thoughtis/screendoor-api-node.git"
+  },
+  "keywords": [
+    "screendoor"
+  ],
+  "author": "Douglas Johnson <doug@thought.is> (http://thought.is)",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/thoughtis/screendoor-api-node/issues"
+  },
+  "homepage": "https://github.com/thoughtis/screendoor-api-node"
+}
