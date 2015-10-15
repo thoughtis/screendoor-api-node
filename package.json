@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/thoughtis/screendoor-api-node/issues"
   },
-  "homepage": "https://github.com/thoughtis/screendoor-api-node"
+  "homepage": "https://github.com/thoughtis/screendoor-api-node",
+  "dependencies": {
+    "request": "^2.65.0"
+  }
 }
