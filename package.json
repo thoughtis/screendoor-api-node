@@ -1,6 +1,6 @@
 {
   "name": "screendoor-api-node",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "NodeJS module for interacting with the Screendoor API",
   "main": "index.js",
   "scripts": {
