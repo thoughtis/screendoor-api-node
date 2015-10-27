@@ -5,12 +5,11 @@ http://dobtco.github.io/screendoor-api-docs/
 
 # Available Endpoints
 
-GET /sites/:site_id/projects
-GET /sites/:site_id/projects/:project_id
-GET /projects/:project_id/response_fields
-
-POST /projects/:project_id/responses
-POST /form_renderer/
+- GET /sites/:site_id/projects
+- GET /sites/:site_id/projects/:project_id
+- GET /projects/:project_id/response_fields
+- POST /projects/:project_id/responses
+- POST /form_renderer/
 
 # Example Usage
 
