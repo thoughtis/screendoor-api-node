@@ -143,6 +143,69 @@ Screendoor.prototype.getProjectFields = function( project_id, callback ) {
 };
 
 /**
+ * Get Responses by Project
+ *
+ * @param mixed { string|int } project_id
+ */
+
+Screendoor.prototype.getProjectResponses = function ( project_id, params, callback ) {
+
+	var self = this,
+		url = self.url( {
+
+			path : '/projects/' + project_id + '/responses',
+			params: params
+
+		} );
+
+	self.request( 'GET', url, null, function ( err, result ) {
+
+		if ( err ) {
+			return callback( err, null );
+		}
+
+		return callback( null, result );
+
+	} );
+
+};
+
+/**
+ * Get Single Response
+ *
+ * @param mixed { string|int } project_id
+ * @param mixed { string|int } response_id
+ * @param string response_format
+ */
+
+Screendoor.prototype.getProjectResponse = function ( project_id, response_id, response_format, callback ) {
+
+	var self = this,
+		url = self.url({
+
+			path : '/projects/' + project_id + '/responses/' + response_id,
+			params : {
+				response_format : response_format || 'raw'
+			}
+
+	});
+
+
+	self.request( 'GET', url, null, function ( err, result ) {
+
+		if ( err ) {
+
+			return callback( err, null );
+
+		}
+
+		return callback( null, result );
+
+	} );
+
+};
+
+/**
  * Set Response by Project
  *
  * @param mixed { string|int } project_id
@@ -184,6 +247,45 @@ Screendoor.prototype.setProjectResponse = function( project_id, response_fields,
 	} );
 
 };
+
+/**
+ * Update Project Response
+ * @todo include other fields!
+ */
+
+ Screendoor.prototype.updateProjectResponse = function( project_id, response_id, response_fields, options, callback ) {
+
+ 	var self 	= this,
+		url 	= self.url({
+
+		path : '/projects/' + project_id + '/responses/' + response_id
+
+	});
+
+	var data = {
+
+		'labels': [],
+		'status' : ''
+
+	};
+
+	for ( i in options ) {
+		if ( i in data ) {
+			data[i] = options[i];
+		}
+	}
+
+ 	self.request( 'PUT', url, data, function ( err, result ) {
+
+		if ( err ) {
+			return callback( err, null );
+		}
+
+		return callback( null, result );
+
+	} );
+
+ };
 
 /**
  * Upload File
@@ -259,6 +361,10 @@ Screendoor.prototype.request = function( method, url, data, callback ){
 	if ( null !== data ) {
 
 		var key = ( 'file' in data ? 'formData' : 'form' );
+
+			// Document this!
+
+			key = ( 'PUT' === method ? 'formData' : key );
 
 		options[key] = data;
 
