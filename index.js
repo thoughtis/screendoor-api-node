@@ -46,7 +46,7 @@ Screendoor.prototype.url = function( options ) {
 		url += '?v=' + this.api.v;
 		url += '&api_key=' + this.api.key;
 
-	if( 'params' in options ) {
+	if ( 'params' in options ) {
 
 		for ( i in options.params ) {
 
@@ -227,13 +227,16 @@ Screendoor.prototype.setProjectResponse = function( project_id, response_fields,
 
 	});
 
+	/**
+	 * @todo add labels
+	 */
+
 	var data = {
 
 		'response_fields' : response_fields || {},
 		'skip_email_confirmation': true,
 		'skip_notifications': true,
-		'skip_validation': true,
-		'labels': []
+		'skip_validation': true
 
 	};
 
@@ -277,10 +280,10 @@ Screendoor.prototype.setProjectResponse = function( project_id, response_fields,
 
 	var data = {
 
-		'response_fields': response_fields || {},
-		'force_validation': false,
-		'labels': [],
-		'status': ''
+		response_fields : response_fields || {},
+		force_validation : false,
+		labels : [],
+		status : []
 
 	};
 
@@ -375,27 +378,26 @@ Screendoor.prototype.request = function( method, url, data, callback ){
 
 	};
 
-	// Add Data for PUT or POST
+	if ( null !== data ) {
 
-	if ( ( 'PUT' === method || 'POST' === method ) && null !== data ) {
+		// Use formData to POST a file.
 
-		// Use 'formData' for all PUT requests and POST requests with file data
+		if ( 'POST' === method ) {
 
-		if ( 'PUT' === method || 'file' in data ) {
+			var key = ( 'file' in data ? 'formData' : 'form' );
 
-			var key = 'formData';
-
-		}
-
-		// Use 'form' for POST requests with no file data
-
-		else {
-
-			var key = 'form';
+			options[key] = data;
 
 		}
 
-		options[key] = data;
+		// Use JSON body for PUT.
+
+		else if( 'PUT' === method ) {
+
+			options['headers'] 	= { 'Content-Type' : 'application/json' };
+			options['body'] 	= JSON.stringify( data );
+
+		}
 
 	}
 
