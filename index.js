@@ -146,6 +146,11 @@ Screendoor.prototype.getProjectFields = function( project_id, callback ) {
  * Get Responses by Project
  *
  * @param mixed { string|int } project_id
+ * @param mixed { null|object } params
+ *		sort: string
+ *		direction: string
+ * 		page: int
+ * 		per_page: int
  */
 
 Screendoor.prototype.getProjectResponses = function ( project_id, params, callback ) {
@@ -154,7 +159,7 @@ Screendoor.prototype.getProjectResponses = function ( project_id, params, callba
 		url = self.url( {
 
 			path : '/projects/' + project_id + '/responses',
-			params: params
+			params: params || {}
 
 		} );
 
@@ -209,6 +214,8 @@ Screendoor.prototype.getProjectResponse = function ( project_id, response_id, re
  * Set Response by Project
  *
  * @param mixed { string|int } project_id
+ * @param mixed { null|object } response_fields
+ * @param mixed { null|object } options
  */
 
 Screendoor.prototype.setProjectResponse = function( project_id, response_fields, options, callback ) {
@@ -230,9 +237,11 @@ Screendoor.prototype.setProjectResponse = function( project_id, response_fields,
 
 	};
 
-	for ( i in options ) {
-		if ( i in data ) {
-			data[i] = options[i];
+	if ( 'object' === typeof options ) {
+		for ( i in options ) {
+			if ( i in data ) {
+				data[i] = options[i];
+			}
 		}
 	}
 
@@ -250,7 +259,11 @@ Screendoor.prototype.setProjectResponse = function( project_id, response_fields,
 
 /**
  * Update Project Response
- * @todo include other fields!
+ *
+ * @param mixed { string|int } project_id
+ * @param mixed { string|int } response_id
+ * @param mixed { null|object } response_fields
+ * @param mixed { null|object } options
  */
 
  Screendoor.prototype.updateProjectResponse = function( project_id, response_id, response_fields, options, callback ) {
@@ -264,14 +277,18 @@ Screendoor.prototype.setProjectResponse = function( project_id, response_fields,
 
 	var data = {
 
+		'response_fields': response_fields || {},
+		'force_validation': false,
 		'labels': [],
-		'status' : ''
+		'status': ''
 
 	};
 
-	for ( i in options ) {
-		if ( i in data ) {
-			data[i] = options[i];
+	if ( 'object' === typeof options ) {
+		for ( i in options ) {
+			if ( i in data ) {
+				data[i] = options[i];
+			}
 		}
 	}
 
@@ -358,13 +375,25 @@ Screendoor.prototype.request = function( method, url, data, callback ){
 
 	};
 
-	if ( null !== data ) {
+	// Add Data for PUT or POST
 
-		var key = ( 'file' in data ? 'formData' : 'form' );
+	if ( ( 'PUT' === method || 'POST' === method ) && null !== data ) {
 
-			// Document this!
+		// Use 'formData' for all PUT requests and POST requests with file data
 
-			key = ( 'PUT' === method ? 'formData' : key );
+		if ( 'PUT' === method || 'file' in data ) {
+
+			var key = 'formData';
+
+		}
+
+		// Use 'form' for POST requests with no file data
+
+		else {
+
+			var key = 'form';
+
+		}
 
 		options[key] = data;
 
