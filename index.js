@@ -177,6 +177,48 @@ Screendoor.prototype.getProjectResponses = function ( project_id, params, callba
 };
 
 /**
+ * Get All Data
+ *
+ * @param function fn
+ * @param mixed { string|int } id
+ * @param mixed { null|object } params
+ *		sort: string
+ *		direction: string
+ * 		page: int
+ * 		per_page: int
+ */
+Screendoor.prototype.getAll = function ( fn, id, params, callback ) {
+	var self = this;
+	var allData = [];
+	var linkHeader = null;
+
+	var getAllData = function ( page ) {
+		params.page = page ? page : 1;
+
+		fn.call( self, id, params, function (err, results, httpResponse ) {
+			
+			linkHeader = parse( httpResponse.headers.link );
+
+			if ( err ) {
+				return callback( err, null, httpResponse );
+			}
+
+			results.forEach( function ( result ) {	
+				allData.push( result );
+			} );
+
+			if ( linkHeader && linkHeader.next ) {
+				return getAllData( linkHeader.next.page );
+			}
+
+			callback( null, allData );
+		});
+	};
+
+	getAllData();
+};
+
+/**
  * Get Single Response
  *
  * @param mixed { string|int } project_id
