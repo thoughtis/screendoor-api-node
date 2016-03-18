@@ -76,13 +76,13 @@ Screendoor.prototype.getSiteProjects = function( site_id, callback ) {
 
 	} );
 
-	self.request( 'GET', url, null, function( err, result ) {
+	self.request( 'GET', url, null, function( err, result, httpResponse ) {
 
 		if ( err ) {
-			return callback( err, null );
+			return callback( err, null, httpResponse );
 		}
 
-		return callback( null, result );
+		return callback( null, result, httpResponse );
 
 	} );
 
@@ -104,13 +104,13 @@ Screendoor.prototype.getProject = function ( site_id, project_id, callback ) {
 
 	} );
 
-	self.request( 'GET', url, null, function ( err, result ) {
+	self.request( 'GET', url, null, function ( err, result, httpResponse ) {
 
 		if ( err ) {
-			return callback( err, null );
+			return callback( err, null, httpResponse );
 		}
 
-		return callback( null, result );
+		return callback( null, result, httpResponse );
 
 	} );
 
@@ -131,13 +131,13 @@ Screendoor.prototype.getProjectFields = function( project_id, callback ) {
 
 	} );
 
-	self.request( 'GET', url, null, function ( err, result ) {
+	self.request( 'GET', url, null, function ( err, result, httpResponse ) {
 
 		if ( err ) {
-			return callback( err, null );
+			return callback( err, null, httpResponse );
 		}
 
-		return callback( null, result );
+		return callback( null, result, httpResponse );
 
 	} );
 
@@ -164,13 +164,13 @@ Screendoor.prototype.getProjectResponses = function ( project_id, params, callba
 
 		} );
 
-	self.request( 'GET', url, null, function ( err, result ) {
+	self.request( 'GET', url, null, function ( err, result, httpResponse ) {
 
 		if ( err ) {
-			return callback( err, null );
+			return callback( err, null, httpResponse );
 		}
 
-		return callback( null, result );
+		return callback( null, result, httpResponse );
 
 	} );
 
@@ -197,15 +197,15 @@ Screendoor.prototype.getProjectResponse = function ( project_id, response_id, re
 	});
 
 
-	self.request( 'GET', url, null, function ( err, result ) {
+	self.request( 'GET', url, null, function ( err, result, httpResponse ) {
 
 		if ( err ) {
 
-			return callback( err, null );
+			return callback( err, null, httpResponse );
 
 		}
 
-		return callback( null, result );
+		return callback( null, result, httpResponse );
 
 	} );
 
@@ -249,13 +249,13 @@ Screendoor.prototype.setProjectResponse = function( project_id, response_fields,
 		}
 	}
 
-	self.request( 'POST', url, data, function ( err, result ) {
+	self.request( 'POST', url, data, function ( err, result, httpResponse ) {
 
 		if ( err ) {
-			return callback( err, null );
+			return callback( err, null, httpResponse );
 		}
 
-		return callback( null, result );
+		return callback( null, result, httpResponse );
 
 	} );
 
@@ -296,13 +296,13 @@ Screendoor.prototype.setProjectResponse = function( project_id, response_fields,
 		}
 	}
 
- 	self.request( 'PUT', url, data, function ( err, result ) {
+ 	self.request( 'PUT', url, data, function ( err, result, httpResponse ) {
 
 		if ( err ) {
-			return callback( err, null );
+			return callback( err, null, httpResponse );
 		}
 
-		return callback( null, result );
+		return callback( null, result, httpResponse );
 
 	} );
 
@@ -342,7 +342,7 @@ Screendoor.prototype.uploadFile = function( field_id, encoded_file, file_options
 
     };
 
-    self.request( 'POST', url, data, function( err, result ){
+    self.request( 'POST', url, data, function( err, result, httpResponse ) {
 
 		if ( err ) {
 
@@ -356,7 +356,7 @@ Screendoor.prototype.uploadFile = function( field_id, encoded_file, file_options
 
 		}
 
-		return callback( null, result );
+		return callback( null, result, httpResponse );
 
 	} );
 
@@ -406,7 +406,7 @@ Screendoor.prototype.request = function( method, url, data, callback ){
 
     	if ( 'statusCode' in httpResponse && 200 !== httpResponse.statusCode ){
 
-    		return callback( new Error( 'Unusable status in response.' ), null );
+    		return callback( new Error( 'Unusable status in response.' ), null, httpResponse );
 
     	}
 
@@ -414,11 +414,11 @@ Screendoor.prototype.request = function( method, url, data, callback ){
 
     	if ( 'errors' in result ){
 
-    		return callback( new Error( result.errors ), null );
+    		return callback( new Error( result.errors ), null, httpResponse );
 
     	}
 
-    	return callback( null, result );
+    	return callback( null, result, httpResponse );
 
 	} );
 
