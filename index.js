@@ -67,12 +67,13 @@ Screendoor.prototype.url = function( options ) {
  * @param mixed { string|int } site_id
  */
 
-Screendoor.prototype.getSiteProjects = function( site_id, callback ) {
+Screendoor.prototype.getSiteProjects = function( site_id, params, callback ) {
 
 	var self 	= this,
 		url 	= self.url( {
 
-		path : '/sites/' + site_id + '/projects'
+		path : '/sites/' + site_id + '/projects',
+		params: params || {}
 
 	} );
 
@@ -122,12 +123,13 @@ Screendoor.prototype.getProject = function ( site_id, project_id, callback ) {
  * @param mixed { string|int } project_id
  */
 
-Screendoor.prototype.getProjectFields = function( project_id, callback ) {
+Screendoor.prototype.getProjectFields = function( project_id, params, callback ) {
 
 	var self 	= this,
 		url 	= self.url({
 
-		path : '/projects/' + project_id + '/response_fields'
+		path : '/projects/' + project_id + '/response_fields',
+		params: params || {}
 
 	} );
 
