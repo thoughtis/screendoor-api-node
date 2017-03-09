@@ -5,11 +5,13 @@ http://dobtco.github.io/screendoor-api-docs/
 
 # Available Endpoints
 
-- GET /sites/:site_id/projects
-- GET /sites/:site_id/projects/:project_id
-- GET /projects/:project_id/response_fields
-- POST /projects/:project_id/responses
-- POST /form_renderer/
+* GET /sites/:site_id/projects
+* GET /sites/:site_id/projects/:project_id
+* GET /projects/:project_id/response_fields
+* GET /projects/:project_id/responses/:response_id
+* PUT /projects/:project_id/responses/:response_id
+* POST /projects/:project_id/responses
+* POST /form_renderer/
 
 # Example Usage
 
@@ -74,22 +76,44 @@ scrndr.getProjectFields( project_id, function( err, fields ){
 
 ```
 
+## GET /projects/:project_id/responses/:response_id
+
+[ See Endpoint in API Docs ](http://dobtco.github.io/screendoor-api-docs/#retrieve-a-single-response)
+
+``` javascript
+
+scrndr.getProjectResponse( project_id, response_id, format, function( err, result ){
+
+	if ( null !== err ) {
+
+		return callback( err, null );
+
+	}
+
+	return callback( null, result );
+
+} );
+
+
+
+
+```
+
 ## POST /projects/:project_id/responses
 
 [ See Endpoint in API Docs ](http://dobtco.github.io/screendoor-api-docs/#create-a-response)
 
 ``` javascript
 var response_fields = {
-	"1": "Vivian Cronin",
-    "2": "emmanuelle@goyette.co.uk",
+	"1": "Test Name",
+    "2": "test@test.com",
     "3": "New application for your job on Startuply"
 };
 
 var options = {
 	'skip_email_confirmation': true,
 	'skip_notifications': true,
-	'skip_validation': true,
-	'labels': []
+	'skip_validation': true
 };
 
 scrndr.setProjectResponse( project_id, response_fields, options, function( err, result ){
@@ -103,6 +127,40 @@ scrndr.setProjectResponse( project_id, response_fields, options, function( err, 
 	return callback( null, result );
 
 } );
+
+```
+
+**Note:** Arrays do not currently work as POST values, so labels cannot be sent through Set Project Response. However they can be used with Update Project Response.
+
+## PUT /projects/:project_id/responses/:response_id
+
+[ See Endpoint in API Docs ](http://dobtco.github.io/screendoor-api-docs/#update-a-response)
+
+``` javascript
+
+var response_fields = {
+	"1": "Test Name",
+    "2": "test@test.com",
+    "3": "New application for your job on Startuply"
+};
+
+var options = {
+	force_validation : false,
+	labels : ['test'],
+	status : 'Open'
+};
+
+scrndr.updateProjectResponse( project_id, response_id, response_fields, options, function( err, result ){
+
+	if ( null !== err ) {
+
+		return callback( err, null );
+
+	}
+
+	return callback( null, result );
+
+});
 
 ```
 

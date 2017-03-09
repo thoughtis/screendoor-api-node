@@ -46,7 +46,7 @@ Screendoor.prototype.url = function( options ) {
 		url += '?v=' + this.api.v;
 		url += '&api_key=' + this.api.key;
 
-	if( 'params' in options ) {
+	if ( 'params' in options ) {
 
 		for ( i in options.params ) {
 
@@ -66,22 +66,23 @@ Screendoor.prototype.url = function( options ) {
  * @param mixed { string|int } site_id
  */
 
-Screendoor.prototype.getSiteProjects = function( site_id, callback ) {
+Screendoor.prototype.getSiteProjects = function( site_id, params, callback ) {
 
 	var self 	= this,
 		url 	= self.url( {
 
-		path : '/sites/' + site_id + '/projects'
+		path : '/sites/' + site_id + '/projects',
+		params: params || {}
 
 	} );
 
-	self.request( 'GET', url, null, function( err, result ) {
+	self.request( 'GET', url, null, function( err, result, httpResponse ) {
 
 		if ( err ) {
-			return callback( err, null );
+			return callback( err, null, httpResponse );
 		}
 
-		return callback( null, result );
+		return callback( null, result, httpResponse );
 
 	} );
 
@@ -103,13 +104,13 @@ Screendoor.prototype.getProject = function ( site_id, project_id, callback ) {
 
 	} );
 
-	self.request( 'GET', url, null, function ( err, result ) {
+	self.request( 'GET', url, null, function ( err, result, httpResponse ) {
 
 		if ( err ) {
-			return callback( err, null );
+			return callback( err, null, httpResponse );
 		}
 
-		return callback( null, result );
+		return callback( null, result, httpResponse );
 
 	} );
 
@@ -121,22 +122,133 @@ Screendoor.prototype.getProject = function ( site_id, project_id, callback ) {
  * @param mixed { string|int } project_id
  */
 
-Screendoor.prototype.getProjectFields = function( project_id, callback ) {
+Screendoor.prototype.getProjectFields = function( project_id, params, callback ) {
 
 	var self 	= this,
 		url 	= self.url({
 
-		path : '/projects/' + project_id + '/response_fields'
+		path : '/projects/' + project_id + '/response_fields',
+		params: params || {}
 
 	} );
 
-	self.request( 'GET', url, null, function ( err, result ) {
+	self.request( 'GET', url, null, function ( err, result, httpResponse ) {
 
 		if ( err ) {
-			return callback( err, null );
+			return callback( err, null, httpResponse );
 		}
 
-		return callback( null, result );
+		return callback( null, result, httpResponse );
+
+	} );
+
+};
+
+/**
+ * Get Responses by Project
+ *
+ * @param mixed { string|int } project_id
+ * @param mixed { null|object } params
+ *		sort: string
+ *		direction: string
+ * 		page: int
+ * 		per_page: int
+ */
+
+Screendoor.prototype.getProjectResponses = function ( project_id, params, callback ) {
+
+	var self = this,
+		url = self.url( {
+
+			path : '/projects/' + project_id + '/responses',
+			params: params || {}
+
+		} );
+
+	self.request( 'GET', url, null, function ( err, result, httpResponse ) {
+
+		if ( err ) {
+			return callback( err, null, httpResponse );
+		}
+
+		return callback( null, result, httpResponse );
+
+	} );
+
+};
+
+/**
+ * Get All Data
+ *
+ * @param function fn
+ * @param mixed { string|int } id
+ * @param mixed { null|object } params
+ *		sort: string
+ *		direction: string
+ * 		page: int
+ * 		per_page: int
+ */
+Screendoor.prototype.getAll = function ( fn, id, params, callback ) {
+	var self = this;
+	var allData = [];
+	var linkHeader = null;
+
+	var getAllData = function ( page ) {
+		params.page = page ? page : 1;
+
+		fn.call( self, id, params, function (err, results, httpResponse ) {
+			
+			linkHeader = parse( httpResponse.headers.link );
+
+			if ( err ) {
+				return callback( err, null, httpResponse );
+			}
+
+			results.forEach( function ( result ) {	
+				allData.push( result );
+			} );
+
+			if ( linkHeader && linkHeader.next ) {
+				return getAllData( linkHeader.next.page );
+			}
+
+			callback( null, allData );
+		});
+	};
+
+	getAllData();
+};
+
+/**
+ * Get Single Response
+ *
+ * @param mixed { string|int } project_id
+ * @param mixed { string|int } response_id
+ * @param string response_format
+ */
+
+Screendoor.prototype.getProjectResponse = function ( project_id, response_id, response_format, callback ) {
+
+	var self = this,
+		url = self.url({
+
+			path : '/projects/' + project_id + '/responses/' + response_id,
+			params : {
+				response_format : response_format || 'raw'
+			}
+
+	});
+
+
+	self.request( 'GET', url, null, function ( err, result, httpResponse ) {
+
+		if ( err ) {
+
+			return callback( err, null, httpResponse );
+
+		}
+
+		return callback( null, result, httpResponse );
 
 	} );
 
@@ -146,6 +258,8 @@ Screendoor.prototype.getProjectFields = function( project_id, callback ) {
  * Set Response by Project
  *
  * @param mixed { string|int } project_id
+ * @param mixed { null|object } response_fields
+ * @param mixed { null|object } options
  */
 
 Screendoor.prototype.setProjectResponse = function( project_id, response_fields, options, callback ) {
@@ -157,33 +271,85 @@ Screendoor.prototype.setProjectResponse = function( project_id, response_fields,
 
 	});
 
+	/**
+	 * @todo add labels
+	 */
+
 	var data = {
 
 		'response_fields' : response_fields || {},
 		'skip_email_confirmation': true,
 		'skip_notifications': true,
-		'skip_validation': true,
-		'labels': []
+		'skip_validation': true
 
 	};
 
-	for ( i in options ) {
-		if ( i in data ) {
-			data[i] = options[i];
+	if ( 'object' === typeof options ) {
+		for ( i in options ) {
+			if ( i in data ) {
+				data[i] = options[i];
+			}
 		}
 	}
 
-	self.request( 'POST', url, data, function ( err, result ) {
+	self.request( 'POST', url, data, function ( err, result, httpResponse ) {
 
 		if ( err ) {
-			return callback( err, null );
+			return callback( err, null, httpResponse );
 		}
 
-		return callback( null, result );
+		return callback( null, result, httpResponse );
 
 	} );
 
 };
+
+/**
+ * Update Project Response
+ *
+ * @param mixed { string|int } project_id
+ * @param mixed { string|int } response_id
+ * @param mixed { null|object } response_fields
+ * @param mixed { null|object } options
+ */
+
+ Screendoor.prototype.updateProjectResponse = function( project_id, response_id, response_fields, options, callback ) {
+
+ 	var self 	= this,
+		url 	= self.url({
+
+		path : '/projects/' + project_id + '/responses/' + response_id
+
+	});
+
+	var data = {
+
+		response_fields : response_fields || {},
+		force_validation : false,
+		labels : [],
+		status : []
+
+	};
+
+	if ( 'object' === typeof options ) {
+		for ( i in options ) {
+			if ( i in data ) {
+				data[i] = options[i];
+			}
+		}
+	}
+
+ 	self.request( 'PUT', url, data, function ( err, result, httpResponse ) {
+
+		if ( err ) {
+			return callback( err, null, httpResponse );
+		}
+
+		return callback( null, result, httpResponse );
+
+	} );
+
+ };
 
 /**
  * Upload File
@@ -219,7 +385,7 @@ Screendoor.prototype.uploadFile = function( field_id, encoded_file, file_options
 
     };
 
-    self.request( 'POST', url, data, function( err, result ){
+    self.request( 'POST', url, data, function( err, result, httpResponse ) {
 
 		if ( err ) {
 
@@ -233,7 +399,7 @@ Screendoor.prototype.uploadFile = function( field_id, encoded_file, file_options
 
 		}
 
-		return callback( null, result );
+		return callback( null, result, httpResponse );
 
 	} );
 
@@ -258,9 +424,24 @@ Screendoor.prototype.request = function( method, url, data, callback ){
 
 	if ( null !== data ) {
 
-		var key = ( 'file' in data ? 'formData' : 'form' );
+		// Use formData to POST a file.
 
-		options[key] = data;
+		if ( 'POST' === method ) {
+
+			var key = ( 'file' in data ? 'formData' : 'form' );
+
+			options[key] = data;
+
+		}
+
+		// Use JSON body for PUT.
+
+		else if( 'PUT' === method ) {
+
+			options['headers'] 	= { 'Content-Type' : 'application/json' };
+			options['body'] 	= JSON.stringify( data );
+
+		}
 
 	}
 
@@ -268,7 +449,7 @@ Screendoor.prototype.request = function( method, url, data, callback ){
 
     	if ( 'statusCode' in httpResponse && 200 !== httpResponse.statusCode ){
 
-    		return callback( new Error( 'Unusable status in response.' ), null );
+    		return callback( new Error( 'Unusable status in response.' ), null, httpResponse );
 
     	}
 
@@ -276,11 +457,11 @@ Screendoor.prototype.request = function( method, url, data, callback ){
 
     	if ( 'errors' in result ){
 
-    		return callback( new Error( result.errors ), null );
+    		return callback( new Error( result.errors ), null, httpResponse );
 
     	}
 
-    	return callback( null, result );
+    	return callback( null, result, httpResponse );
 
 	} );
 
