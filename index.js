@@ -7,7 +7,6 @@
  */
 
 var request = require( 'request' );
-var parse = require( 'parse-link-header' );
 
 /**
  * Declare Screendoor Class

@@ -20,7 +20,6 @@
   },
   "homepage": "https://github.com/thoughtis/screendoor-api-node",
   "dependencies": {
-    "parse-link-header": "^0.4.1",
     "request": "^2.65.0"
   }
 }
